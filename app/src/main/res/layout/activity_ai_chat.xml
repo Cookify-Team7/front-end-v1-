@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
+    tools:context=".AiChatActivity">
+
+    <!-- 상단 헤더 -->
+    <LinearLayout
+        android:id="@+id/layout_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_ai_back"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="33dp"
+            android:layout_height="20dp"
+            android:backgroundTint="@android:color/transparent"
+            app:icon="@drawable/ic_chevron_left"
+            app:iconTint="@color/brown" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bold"
+            android:textSize="20sp"
+            android:textColor="@color/brown"
+            android:textStyle="bold"
+            android:text="@string/ai_chat_title" />
+    </LinearLayout>
+
+    <!-- 메시지 목록을 표시할 RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_ai_chat"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="10dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_chat_message" />
+
+    <!-- 메시지 입력 영역 -->
+    <LinearLayout
+        android:id="@+id/layout_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="40dp"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:orientation="horizontal"
+            android:background="@drawable/frg_edittext_background">
+
+            <EditText
+                android:id="@+id/edit_ai_chatbot"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center_vertical"
+                android:fontFamily="@font/medium"
+                android:textColorHint="@color/primary_red"
+                android:textSize="14sp"
+                android:background="@null"
+                android:layout_weight="1"
+                android:hint="@string/ai_chat_hint"/>
+
+            <Button
+                android:id="@+id/btn_ai_send"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/btn_send"
+                android:backgroundTint="@null"
+                android:layout_gravity="center_vertical"
+                app:backgroundTint="@null"
+                android:tint="@null"
+                android:foreground="?attr/selectableItemBackgroundBorderless" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

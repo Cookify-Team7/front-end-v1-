@@ -1,0 +1,42 @@
+<resources>
+    <!-- common -->
+    <string name="cammera_not_connected">카메라가 연결되지 않았습니다.</string>
+    <string name="app_name">Cookify</string>
+    <string name="app_name_big">COOKIFY</string>
+
+    <!-- Main Activity -->
+    <string name="main_title_description">"불 조심, 물 조심!\n안전하고 맛있는 한 끼 함께해요."</string>
+
+    <string name="main_button1_title">안전 모니터링 시작</string>
+    <string name="main_button1_description">모니터링과 함께 요리를 안전하게 시작하기</string>
+
+    <string name="main_button2_title">재료 인식</string>
+    <string name="main_button2_description">준비한 재료로 할 수 있는 요리를 추천받기</string>
+
+    <string name="main_button3_title">AI 챗</string>
+    <string name="main_button3_description">준비한 재료로 할 수 있는 요리를 추천받기</string>
+
+    <string name="main_button_connect">카메라 연결하기</string>
+
+    <!-- Monitoring Activity -->
+    <string name="monitoring_title">실시간 안전 모니터링</string>
+    <string name="monitoring_notice_title">모니터링 시작 전 확인사항</string>
+    <string name="monitoring_notice1_caption">\n · 카메라가 조리대와 가스레인지를 잘 보는지 확인하세요.\n
+ · 충분한 조명이 있는지 확인하세요.\n
+ · 브라우저에서 카메라 권한을 허용해주세요.\n
+ · 안정적인 인터넷 연결을 확인하세요.</string>
+
+    <!-- Ingredient Activity -->
+    <string name="ingredient_title">재료 인식</string>
+    <string name="ingredient_find_title">인식된 재료</string>
+    <string name="ingredient_button_detect">재료 인식하기</string>
+    <string name="ingredient_button_suggest">Recipe</string>
+
+    <!-- AI Chat Activity -->
+    <string name="ai_chat_title">My Chef Chatbot</string>
+    <string name="ai_chat_hint">Chat Bot에게 요리에 대해\n궁금한 점을 질문해보세요.</string>
+
+    <!-- Suggest Activity -->
+    <string name="suggest_title">RecipeBot</string>
+
+</resources>

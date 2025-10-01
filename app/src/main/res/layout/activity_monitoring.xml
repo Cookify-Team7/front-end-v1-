@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background"
+    tools:context=".MonitoringActivity">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_monitoring_back"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="33dp"
+            android:layout_height="20dp"
+            android:backgroundTint="@android:color/transparent"
+            app:icon="@drawable/ic_chevron_left"
+            app:iconTint="@color/brown" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bold"
+            android:textSize="20sp"
+            android:textColor="@color/brown"
+            android:text="@string/monitoring_title" />
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:id="@+id/view_monitoring_camera"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="33dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/frg_preview_camera">
+
+        <LinearLayout
+            android:id="@+id/view_monitoring_not_connected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <ImageView
+                android:layout_width="43dp"
+                android:layout_height="33dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/icon_camera" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/medium"
+                android:text="@string/cammera_not_connected"
+                android:textColor="@color/semiprimary_white"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rcv_monitoring_danger"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="20dp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="144dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:orientation="vertical"
+        android:background="@drawable/monitoring_frg_notice"
+        tools:ignore="RtlSymmetry">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bold"
+            android:textSize="14sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="32dp"
+            android:textColor="@color/semiprimary_black"
+            android:text="@string/monitoring_notice_title"
+            android:lineSpacingMultiplier="1.5" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/regular"
+            android:textColor="@color/semiprimary_black"
+            android:textSize="11sp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="32dp"
+            android:text="@string/monitoring_notice1_caption"
+            android:lineSpacingMultiplier="1.2" />
+    </FrameLayout>
+
+</LinearLayout>

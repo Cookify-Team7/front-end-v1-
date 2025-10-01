@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Maratang" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
+    </style>
+
+    <style name="Theme.Maratang" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
+
+    <style name="Theme.Maratang.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/primary_brown</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/img_bread</item>
+    </style>
+</resources>

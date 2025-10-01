@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="brown">#FF705240</color>
+
+    <color name="background">#FFEFEDE7</color>
+    <color name="semibackground">#FFF9F9F9</color>
+
+    <color name="primary_red">#FFFE6062</color>
+    <color name="primary_beige">#FFE3E1D8</color>
+    <color name="primary_black">#FF222222</color>
+    <color name="primary_white">#FFFFFFFF</color>
+    <color name="primary_sky">#FFAEC5E4</color>
+    <color name="primary_brown">#7B5E4B</color>
+    <color name="primary_green">#FF2CB72C</color>
+
+    <color name="semiprimary_red">#FFFFC6BE</color>
+    <color name="semiprimary_beige">#FFD7CDBD</color>
+    <color name="semiprimary_black">#FF6C5E55</color>
+    <color name="semiprimary_white">#FFC9C9C9</color>
+    <color name="semiprimary_brown">#FFDAC6AF</color>
+
+    <color name="secondary_white">#FFF3F4F6</color>
+    <color name="secondary_black">#FF868686</color>
+
+    <color name="stroke_white">#FFE6E6E6</color>
+    <color name="stroke_grey">#FF9E9E9E</color>
+
+    <!-- 채팅 메시지 배경 색상 추가 -->
+    <color name="chat_user_background">#FFF0F0F0</color> <!-- 예시 색상, 필요에 따라 조정 -->
+    <color name="chat_ai_background">#FFC6E2FF</color> <!-- 예시 색상, 필요에 따라 조정 -->
+</resources>

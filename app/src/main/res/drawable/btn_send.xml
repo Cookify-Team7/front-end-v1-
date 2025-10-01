@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 1. 배경 원 (회색) -->
+    <path
+        android:fillColor="@color/primary_red"
+        android:pathData="M12,2 A10,10 0 1,1 11.999,2 Z"/>
+    <path
+        android:strokeColor="@color/semiprimary_red"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,7 L12,17 M12,7 L7,12 M12,7 L17,12"/>
+</vector>
