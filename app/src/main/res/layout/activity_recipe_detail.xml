@@ -7,50 +7,79 @@
      5) Start button at bottom
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <!-- Page title -->
-        <TextView
-            android:id="@+id/tv_page_title"
+        <!-- 상단 헤더: 요청 코드 그대로, id만 변경 -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/suggest_title"
-            android:textStyle="bold"
-            android:textSize="22sp"
-            android:textColor="@color/brown"
-            android:paddingBottom="12dp" />
+            android:layout_marginTop="54dp"
+            android:layout_marginStart="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" >
 
-        <!-- Hero image with overlays -->
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="240dp">
+            <Button
+                android:id="@+id/btn_recipe_back"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="33dp"
+                android:layout_height="20dp"
+                android:backgroundTint="@android:color/transparent"
+                app:icon="@drawable/ic_chevron_left"
+                app:iconTint="@color/brown" />
 
-            <!-- Recipe photo -->
-            <ImageView
-                android:id="@+id/iv_detail_photo"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:background="#DDDDDD"
-                android:contentDescription="@string/content_desc_recipe_image" />
-
-            <!-- Bottom overlay container: title + meta row -->
-            <LinearLayout
+            <TextView
+                android:id="@+id/et_recipe_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/bold"
+                android:textSize="20sp"
+                android:textColor="@color/brown"
+                android:text="@string/suggest_title" />
+        </LinearLayout>
+
+        <!-- 이하 기존 내용 유지 -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp">
+
+            <!-- Recipe photo -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp"
+                app:cardCornerRadius="8dp"
+                app:cardUseCompatPadding="false"
+                app:cardPreventCornerOverlap="true"
+                app:cardElevation="0dp">
+
+                <ImageView
+                    android:id="@+id/iv_detail_photo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="#DDDDDD"
+                    android:contentDescription="@string/content_desc_recipe_image" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Bottom overlay container: title + meta row (rounded corners background) -->
+            <LinearLayout
+                android:id="@+id/titlebar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="bottom|start"
-                android:layout_margin="12dp"
                 android:orientation="vertical"
-                android:background="#66000000"
-                android:padding="8dp">
+                android:background="@drawable/bg_titlebar_rounded">
 
                 <!-- Overlay title on image -->
                 <TextView
@@ -58,7 +87,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/suggest_title"
-                    android:textSize="18sp"
+                    android:textSize="12sp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/bold"
                     android:textColor="#FFFFFFFF" />
 
                 <!-- Meta info row: keep existing id tv_detail_meta for the first chip -->
@@ -67,6 +99,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginStart="12dp"
                     android:layout_marginTop="4dp">
 
                     <TextView
@@ -75,8 +109,7 @@
                         android:layout_height="wrap_content"
                         android:text="6 Steps"
                         android:textSize="12sp"
-                        android:textColor="#FFFFFFFF"
-                        android:padding="4dp" />
+                        android:textColor="#FFFFFFFF" />
 
                     <TextView
                         android:id="@+id/tv_meal_type"
@@ -85,7 +118,6 @@
                         android:text="점심/저녁"
                         android:textSize="12sp"
                         android:textColor="#FFFFFFFF"
-                        android:padding="4dp"
                         android:layout_marginStart="6dp" />
 
                     <TextView
@@ -95,7 +127,6 @@
                         android:text="20 mins"
                         android:textSize="12sp"
                         android:textColor="#FFFFFFFF"
-                        android:padding="4dp"
                         android:layout_marginStart="6dp" />
                 </LinearLayout>
             </LinearLayout>
@@ -108,7 +139,10 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="12dp"
                 android:background="@android:color/transparent"
-                android:src="@android:drawable/btn_star_big_off"
+                android:src="@drawable/ic_bookmark_border_24"
+                app:tint="#FFFFFFFF"
+                android:scaleType="center"
+                android:padding="2dp"
                 android:contentDescription="@string/content_desc_bookmark" />
         </FrameLayout>
 
@@ -119,6 +153,8 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingTop="16dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:paddingBottom="8dp">
 
             <TextView
@@ -147,6 +183,8 @@
             android:layout_width="match_parent"
             android:layout_height="84dp"
             android:paddingTop="4dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:paddingBottom="8dp" />
 
         <!-- Steps header -->
@@ -158,24 +196,60 @@
             android:textStyle="bold"
             android:textSize="22sp"
             android:textColor="@color/brown"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:paddingTop="8dp"
             android:paddingBottom="8dp" />
 
         <!-- Steps list -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_detail_steps"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- Start Cooking button -->
-        <Button
-            android:id="@+id/btn_start_cooking"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="요리 시작!"
-            android:textAllCaps="false"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:background="@drawable/btn_rectangle_grey">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_detail_steps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"/>
+        </FrameLayout>
+
+
+        <!-- Start Cooking button -->
+        <LinearLayout
+            android:id="@+id/btn_recipe_start"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center |bottom"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:paddingStart="20dp"
+            android:layout_marginTop="24dp"
+            android:elevation="4dp"
+            android:paddingEnd="20dp"
+            android:background="@drawable/btn_recipe_start">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/icon_bread" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="요리 시작!"
+                android:textSize="16dp"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/semibold"
+                android:textColor="#868686" />
+        </LinearLayout>
+
 
     </LinearLayout>
 </ScrollView>

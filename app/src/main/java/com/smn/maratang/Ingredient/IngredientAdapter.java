@@ -14,10 +14,16 @@ import java.util.List;
 
 public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.ViewHolder> {
     private final List<IngredientItem> ingredientList;
+    public interface OnItemClickListener { void onItemClick(int position, IngredientItem item); }
+    private OnItemClickListener clickListener;
+    private boolean editMode = false;
 
     public IngredientAdapter(List<IngredientItem> ingredientList) {
         this.ingredientList = ingredientList;
     }
+
+    public void setOnItemClickListener(OnItemClickListener l){ this.clickListener = l; }
+    public void setEditMode(boolean enabled){ this.editMode = enabled; notifyDataSetChanged(); }
 
     @NonNull
     @Override
@@ -35,7 +41,18 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
         if (item.getCount() != null && !item.getCount().isEmpty()) amountText += item.getCount();
         if (item.getUnit() != null && !item.getUnit().isEmpty()) amountText += (amountText.isEmpty()? "" : " ") + item.getUnit();
         holder.itm_ingredient_amount.setText(amountText);
-        // 동적 색상/배경 틴트 적용 제거: 레이아웃의 기본 스타일만 사용
+        // 편집 모드 시 약간의 시각적 힌트(투명도)와 클릭 가능
+        holder.itemView.setAlpha(editMode ? 0.92f : 1f);
+        if (editMode && clickListener != null) {
+            holder.itemView.setOnClickListener(v -> {
+                int pos = holder.getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    clickListener.onItemClick(pos, ingredientList.get(pos));
+                }
+            });
+        } else {
+            holder.itemView.setOnClickListener(null);
+        }
     }
 
     @Override

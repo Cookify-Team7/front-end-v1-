@@ -38,7 +38,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) holder.messageContent.getLayoutParams();
         if (message.isUser()) {
             params.gravity = Gravity.END;
-            holder.messageContent.setBackgroundResource(R.drawable.bg_chat_message_user);
+            holder.messageContent.setBackgroundResource(R.drawable.btn_recipe_start);
             holder.messageContent.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.white));
         } else {
             params.gravity = Gravity.START;

@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.smn.maratang.BuildConfig;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +45,7 @@ public class RecipeSuggester {
                 if (apiKey == null || apiKey.isEmpty()) throw new IllegalStateException("GPT_KEY 미설정");
                 String url = "https://api.openai.com/v1/chat/completions";
 
-                String sys = "당신은 요리 추천 도우미입니다. 입력 재료만 이용 가능한 한국 요리를 추천하고, 각 항목에 제목, 대표 이미지 URL, 단계 수, 소요 시간을 제공합니다.";
+                String sys = "당신은 요리 추천 도우미입니다. 입력 재료만 이용 가능한 한국 요리를 추천하고, 각 항목에 제목, 대표 이미지 URL(https 스키마의 공개 접근 가능한 실제 이미지), 단계 수, 소요 시간을 제공합니다. 허위/로컬/데이터URL 금지.";
                 String user = "재료:" + Arrays.toString(ingredients.toArray()) + "\nJSON 객체만 반환: {\"recipes\":[{\"title\":,\"imageUrl\":,\"stepsCount\":,\"time\":,\"ingredients\":[...]},...]} 추가 텍스트 금지.";
 
                 JsonObject root = new JsonObject();
@@ -80,18 +81,37 @@ public class RecipeSuggester {
             JsonArray arr = obj.getAsJsonArray("recipes");
             if (arr == null) return out;
             for (JsonElement el : arr) {
+                if (!el.isJsonObject()) continue;
                 JsonObject o = el.getAsJsonObject();
-                String title = o.get("title").getAsString();
-                String image = o.get("imageUrl").getAsString();
-                int steps = o.get("stepsCount").getAsInt();
-                String time = o.get("time").getAsString();
+                String title = getString(o, "title");
+                String image = getString(o, "imageUrl");
+                if ((image == null || image.isEmpty()) && o.has("image")) image = getString(o, "image");
+                int steps = o.has("stepsCount") && o.get("stepsCount").isJsonPrimitive()? o.get("stepsCount").getAsInt() : 0;
+                String time = getString(o, "time");
                 List<String> ings = new ArrayList<>();
                 if (o.has("ingredients") && o.get("ingredients").isJsonArray()) {
                     for (JsonElement ie : o.getAsJsonArray("ingredients")) ings.add(ie.getAsString());
                 }
-                out.add(new RecipeItem(title, image, steps, time, ings));
+                String finalImage = safeImageUrl(title, image);
+                out.add(new RecipeItem(title!=null?title:"요리", finalImage, steps, time!=null?time:"", ings));
             }
         } catch (Exception ignore) {}
         return out;
+    }
+
+    private static String getString(JsonObject o, String key) {
+        try { return o.has(key) && !o.get(key).isJsonNull() ? o.get(key).getAsString() : null; }
+        catch (Exception e) { return null; }
+    }
+
+    // GPT가 유효한 URL을 제공하지 않으면 Unsplash 대체 이미지로 보정
+    private static String safeImageUrl(String title, String url) {
+        if (url != null) {
+            String u = url.trim();
+            if (u.startsWith("http://") || u.startsWith("https://")) return u;
+        }
+        String q = (title==null||title.isEmpty())? "food" : title;
+        try { q = URLEncoder.encode(q, "UTF-8"); } catch (Exception ignored) {}
+        return "https://source.unsplash.com/600x600/?" + q;
     }
 }

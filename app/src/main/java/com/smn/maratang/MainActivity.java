@@ -56,11 +56,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         main_button_saved_recipe.setOnClickListener(v ->
-                Log.d("MainActivity", "Navigation to SavedRecipeActivity")
+                Toast.makeText(this, "현재 개발 중인 기능입니다.", Toast.LENGTH_LONG).show()
         );
 
         main_button_menu.setOnClickListener(v ->
-                Log.d("MainActivity", "Navigation to MenuActivity")
+                Toast.makeText(this, "현재 개발 중인 기능입니다.", Toast.LENGTH_LONG).show()
         );
     }
 

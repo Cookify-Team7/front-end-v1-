@@ -37,9 +37,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 
-import com.smn.maratang.Dangerouses.DangerItem;
-import com.smn.maratang.Dangerouses.DangerAdapter;
-
 /**
  * @brief Flask 서버(/health → /snapshot) 연동 모니터링 화면(자동 서버 탐색 버전)
  *        - 최초: 후보 BASE들에 대해 /health 점검 → 최초 성공을 채택
@@ -78,10 +75,6 @@ public class MonitoringActivity extends AppCompatActivity {
     private LinearLayout view_monitoring_not_connected;
     private RecyclerView rcv_monitoring_danger;
     private ImageView networkPreview;
-
-    // 데이터/어댑터
-    private DangerAdapter dangerAdapter;
-    private List<DangerItem> dangerList;
 
     // 네트워크
     private OkHttpClient okHttpClient;  // 일반 폴링

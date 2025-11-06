@@ -2,6 +2,7 @@ package com.smn.maratang;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -65,6 +66,12 @@ public class SuggestActivity extends AppCompatActivity {     // 챗봇 입력창
         } else {
             // 재료 기반 레시피 조회
             requestRecipes();
+        }
+
+        // 뒤로가기 버튼: 이전 화면으로 이동
+        Button btnBack = findViewById(R.id.btn_suggest_back);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
         }
     }
 

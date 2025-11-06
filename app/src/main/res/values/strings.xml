@@ -59,4 +59,7 @@
     <string name="label_recipe_steps">레시피 단계</string>
     <string name="content_desc_recipe_image">레시피 이미지</string>
     <string name="content_desc_bookmark">즐겨찾기</string>
+
+    <string name="ingredient_edit_start">편집 시작</string>
+    <string name="ingredient_edit_done">편집 완료</string>
 </resources>

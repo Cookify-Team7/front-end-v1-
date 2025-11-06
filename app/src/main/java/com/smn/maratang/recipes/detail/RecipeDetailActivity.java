@@ -1,12 +1,15 @@
 package com.smn.maratang.recipes.detail;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -36,24 +39,41 @@ public class RecipeDetailActivity extends AppCompatActivity {
         ImageView iv = findViewById(R.id.iv_detail_photo);
         TextView tvTitle = findViewById(R.id.tv_detail_title);
         TextView tvMeta = findViewById(R.id.tv_detail_meta);
+        TextView tvPageTitle = findViewById(R.id.et_recipe_title);
+        Button btnBack = findViewById(R.id.btn_recipe_back);
         ImageButton btnBookmark = findViewById(R.id.btn_bookmark);
 
         if (item != null) {
+            if (tvPageTitle != null) tvPageTitle.setText(item.title);
             tvTitle.setText(item.title);
             tvMeta.setText(item.stepsCount + "단계 • " + item.time);
-            if (item.imageUrl != null && !item.imageUrl.trim().isEmpty()) {
-                Glide.with(iv.getContext())
-                        .load(item.imageUrl)
-                        .placeholder(android.R.color.darker_gray)
-                        .error(android.R.color.darker_gray)
-                        .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                        .centerCrop()
-                        .into(iv);
-            } else {
-                iv.setImageResource(android.R.color.darker_gray);
-            }
+            String finalUrl = safeUrl(item.title, item.imageUrl);
+            Log.d("RecipeDetail","load url=" + finalUrl);
+            Glide.with(iv.getContext()).clear(iv);
+            Glide.with(iv.getContext())
+                    .load(finalUrl)
+                    .placeholder(R.drawable.img_main)
+                    .error(R.drawable.img_main)
+                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                    .dontAnimate()
+                    .centerCrop()
+                    .into(iv);
         } else {
-            iv.setImageResource(android.R.color.darker_gray);
+            iv.setImageResource(R.drawable.img_main);
+        }
+
+        // 뒤로가기
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
+
+        // 시작 버튼(LinearLayout) 클릭 시 토스트 표시
+        View btnStart = findViewById(R.id.btn_recipe_start);
+        if (btnStart != null) {
+            btnStart.setOnClickListener(v -> {
+                String msg = (item != null && item.title != null && !item.title.trim().isEmpty())
+                        ? item.title + " 요리를 시작합니다!"
+                        : "요리를 시작합니다!";
+                Toast.makeText(RecipeDetailActivity.this, msg, Toast.LENGTH_SHORT).show();
+            });
         }
 
         tvTitle.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -83,6 +103,16 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 @Override public void onError(Exception e) { /* 무시하고 비워둠 */ }
             });
         }
+    }
+
+    private String safeUrl(String title, String url) {
+        if (url != null) {
+            String u = url.trim();
+            if (u.startsWith("http://") || u.startsWith("https://")) return u;
+        }
+        String q = (title==null||title.isEmpty())? "food" : title;
+        try { q = java.net.URLEncoder.encode(q, "UTF-8"); } catch (Exception ignored) {}
+        return "https://source.unsplash.com/800x600/?" + q;
     }
 
     // 간단한 어댑터들
