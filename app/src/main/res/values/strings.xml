@@ -7,17 +7,12 @@
     <!-- Main Activity -->
     <string name="main_title_description">"불 조심, 물 조심!\n안전하고 맛있는 한 끼 함께해요."</string>
 
-    <string name="main_button1_title">안전 모니터링 시작</string>
-    <string name="main_button1_description">모니터링과 함께 요리를 안전하게 시작하기</string>
+    <string name="main_button_detect_ingredient">재료 인식하기</string>
 
-    <string name="main_button2_title">재료 인식</string>
-    <string name="main_button2_description">준비한 재료로 할 수 있는 요리를 추천받기</string>
-
-    <string name="main_button3_title">AI 챗</string>
-    <string name="main_button3_description">준비한 재료로 할 수 있는 요리를 추천받기</string>
-
-    <string name="main_button_connect">카메라 연결하기</string>
-
+    <string name="main_button_saved_recipe">Saved Recipe</string>
+    <string name="main_button_saved_recipe_default">0개</string>
+    <string name="main_button_menu">오늘은 뭐먹지?</string>
+    <string name="main_button_menu_default">오늘의 메뉴를 정해봐요!</string>
     <!-- Monitoring Activity -->
     <string name="monitoring_title">실시간 안전 모니터링</string>
     <string name="monitoring_notice_title">모니터링 시작 전 확인사항</string>
@@ -27,16 +22,41 @@
  · 안정적인 인터넷 연결을 확인하세요.</string>
 
     <!-- Ingredient Activity -->
-    <string name="ingredient_title">재료 인식</string>
-    <string name="ingredient_find_title">인식된 재료</string>
-    <string name="ingredient_button_detect">재료 인식하기</string>
-    <string name="ingredient_button_suggest">Recipe</string>
+    <string name="ingredient_camera_not_connect">카메라가 연결되지 않았습니다.</string>
 
+    <string name="ingredient_detected_ingredient">인식된 재료</string>
+    <string name="ingredient_edit">편집</string>
+
+    <string name="recycler_view_ingredient_null">Null</string>
+
+
+    <string name="ingredient_button_suggest">레시피 추천받기</string>
+    <string name="ingredient_button_add_ingredient">재료 추가하기</string>
+
+    <string name="ingredient_bottomsheet_name">재료 이름</string>
+    <string name="ingredient_bottomsheet_name_hint">토마토</string>
+    <string name="ingredient_bottomsheet_count">개수</string>
+    <string name="ingredient_bottomsheet_count_hint">2</string>
+    <string name="ingredient_bottomsheet_unit">Unit</string>
+    <string name="ingredient_bottomsheet_unit_hint">개, 컵, g 등</string>
+    <string name="ingredient_bottomsheet_save">저장</string>
+    <!-- icon descriptions -->
+    <string name="desc_icon_camera">카메라 아이콘</string>
+    <string name="desc_icon_tomato">토마토 아이콘</string>
+    <string name="desc_icon_bread">빵 아이콘</string>
     <!-- AI Chat Activity -->
     <string name="ai_chat_title">My Chef Chatbot</string>
     <string name="ai_chat_hint">Chat Bot에게 요리에 대해\n궁금한 점을 질문해보세요.</string>
 
     <!-- Suggest Activity -->
-    <string name="suggest_title">RecipeBot</string>
+    <string name="suggest_title">레시피 추천</string>
 
+    <string name="suggest_recycler_view_ingredient">재료</string>
+    <string name="suggest_recycler_view_recipes">Recipes</string>
+
+    <string name="steps_format">%1$d단계</string>
+    <string name="label_need_ingredients">필요한 식재료</string>
+    <string name="label_recipe_steps">레시피 단계</string>
+    <string name="content_desc_recipe_image">레시피 이미지</string>
+    <string name="content_desc_bookmark">즐겨찾기</string>
 </resources>

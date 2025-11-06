@@ -1,19 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample data extraction rules file; uncomment and customize as necessary.
-   See https://developer.android.com/about/versions/12/backup-restore#xml-changes
-   for details.
--->
+<?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <!-- 중요한 앱 데이터는 포함 -->
+        <include domain="sharedpref" />
+        <include domain="database" />
+        <include domain="file" />
+        <!-- 캐시 및 재생성 가능한 파일은 제외 -->
+        <exclude domain="cache" />
+        <exclude domain="external-cache" />
     </cloud-backup>
-    <!--
+
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <!-- 기기 간 전송 시에도 동일 정책 적용 -->
+        <include domain="sharedpref" />
+        <include domain="database" />
+        <include domain="file" />
+        <exclude domain="cache" />
+        <exclude domain="external-cache" />
     </device-transfer>
-    -->
 </data-extraction-rules>

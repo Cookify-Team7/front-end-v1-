@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 카드형 레시피 아이템: LinearLayout 전용 버전 (그림자/카드 제거) -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="12dp">
+
+    <!-- 상단 대표 이미지: 가로폭에 맞추어 높이를 자동 조정 -->
+    <ImageView
+        android:id="@+id/iv_recipe_photo"
+        android:layout_width="176dp"
+        android:layout_height="176dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/content_desc_recipe_image"/>
+
+    <!-- 텍스트 영역 -->
+    <LinearLayout
+        android:id="@+id/ll_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- 제목 -->
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:fontFamily="@font/bold"
+            android:textColor="@color/brown" />
+
+        <!-- 단계 표시 (요청에 따라 '단계 확인' 제외) -->
+        <TextView
+            android:id="@+id/tv_steps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/regular"
+            android:textSize="12dp"
+            android:textColor="@color/brown" />
+
+        <!-- 소요 시간 -->
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="12dp"
+            android:fontFamily="@font/medium"
+            android:textColor="@color/brown" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    // alias(libs.plugins.kotlin.android) // 프로젝트에 Kotlin 파일이 있다면 활성화 권장
 }
 
 android {
@@ -15,22 +14,19 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // ── BuildConfig에 API Key 안전 주입 ───────────────────────────────────────
-        // local.properties에서 GEMINI_API_KEY를 읽어옵니다(소스에 하드코딩 금지).
         def localProperties = new Properties()
         def localPropertiesFile = rootProject.file("local.properties")
         if (localPropertiesFile.exists()) {
             localPropertiesFile.withInputStream { localProperties.load(it) }
         }
-        def geminiKey = localProperties.getProperty("GEMINI_API_KEY", "AIzaSyDdmHZyAgYPCUhOS993zSpdqU3A_p-QTfg")
-        // buildConfigField는 "문자열 리터럴"이므로 반드시 따옴표를 감싸서 주입해야 합니다.
+        def geminiKey = localProperties.getProperty("GEMINI_API_KEY", "")
+        def gptKey = localProperties.getProperty("gpt_key", "")
+        if (gptKey != null) { gptKey = gptKey.replace('"','') }
         buildConfigField "String", "GEMINI_API_KEY", "\"${geminiKey}\""
+        buildConfigField "String", "GPT_KEY", "\"${gptKey}\""
     }
 
-    // BuildConfig 생성을 명시적으로 활성화
-    buildFeatures {
-        buildConfig = true
-    }
+    buildFeatures { buildConfig = true }
 
     buildTypes {
         release {
@@ -60,11 +56,12 @@ dependencies {
     implementation libs.converter.scalars
     implementation libs.okhttp
     implementation libs.logging.interceptor
-    // implementation libs.logging.interceptor.v4110 // ↲ 중복이면 하나만 유지
 
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation "com.google.ai.client.generativeai:generativeai:0.+" // 최신 버전 고정은 이후 권장
-    implementation "com.google.guava:listenablefuture:1.0"   // Guava 전체가 아닌 얇은 모듈만
-    // Guava 전체(com.google.guava:guava:.. )는 넣지 마세요. (capability 충돌 예방)
+    implementation "com.google.ai.client.generativeai:generativeai:0.+"
+    implementation "com.google.guava:listenablefuture:1.0"
 
+    // Glide for image loading
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 }

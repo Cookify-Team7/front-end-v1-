@@ -10,7 +10,7 @@
         android:id="@+id/text_message_body"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bubble_ai"
+        android:background="@drawable/btn_rectangle_brown"
         android:textColor="@color/primary_black"
         android:paddingStart="16dp"
         android:paddingTop="8dp"

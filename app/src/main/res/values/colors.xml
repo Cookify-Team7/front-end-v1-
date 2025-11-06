@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="white">#FFFFFFFF</color>
+    <color name="white">#FFFFFF</color>
     <color name="black">#FF000000</color>
     <color name="brown">#FF705240</color>
 
@@ -14,15 +14,19 @@
     <color name="primary_sky">#FFAEC5E4</color>
     <color name="primary_brown">#7B5E4B</color>
     <color name="primary_green">#FF2CB72C</color>
+    <color name="primary_blue">#3C81FF</color>
 
     <color name="semiprimary_red">#FFFFC6BE</color>
     <color name="semiprimary_beige">#FFD7CDBD</color>
-    <color name="semiprimary_black">#FF6C5E55</color>
+    <color name="semiprimary_black">#9C9A98</color>
     <color name="semiprimary_white">#FFC9C9C9</color>
-    <color name="semiprimary_brown">#FFDAC6AF</color>
+    <color name="semiprimary_brown">#BCAA9F</color>
+    <color name="semiprimary_blue">#D8E6FF</color>
 
     <color name="secondary_white">#FFF3F4F6</color>
     <color name="secondary_black">#FF868686</color>
+
+    <color name="third_black">#404040</color>
 
     <color name="stroke_white">#FFE6E6E6</color>
     <color name="stroke_grey">#FF9E9E9E</color>

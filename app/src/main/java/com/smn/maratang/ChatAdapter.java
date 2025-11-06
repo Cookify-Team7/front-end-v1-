@@ -26,6 +26,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_message, parent, false);
         return new ChatViewHolder(view);
+
     }
 
     @Override
@@ -41,7 +42,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
             holder.messageContent.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.white));
         } else {
             params.gravity = Gravity.START;
-            holder.messageContent.setBackgroundResource(R.drawable.bg_chat_message_ai);
+            holder.messageContent.setBackgroundResource(R.drawable.btn_detect_ingredient);
             holder.messageContent.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), android.R.color.black));
         }
         holder.messageContent.setLayoutParams(params);
@@ -58,6 +59,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     }
 
     static class ChatViewHolder extends RecyclerView.ViewHolder {
+
         TextView messageContent;
 
         public ChatViewHolder(@NonNull View itemView) {

@@ -2,8 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!-- 카메라 사용 권한 선언 -->
-    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CAMERA" tools:ignore="CameraPermission"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.any" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
 
     <application
         android:allowBackup="true"
@@ -46,6 +49,10 @@
             android:exported="false"
             android:theme="@style/Theme.Maratang">
         </activity>
+        <activity
+            android:name="com.smn.maratang.recipes.detail.RecipeDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Maratang" />
     </application>
 
 </manifest>

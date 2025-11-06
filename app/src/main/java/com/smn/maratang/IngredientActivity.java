@@ -1,30 +1,25 @@
 package com.smn.maratang;
 
-import static android.view.View.VISIBLE;
-
+import android.Manifest;
 import android.content.Intent;
-import android.graphics.Rect;
-import android.util.TypedValue;
+import android.content.pm.PackageManager;
 import androidx.annotation.NonNull;
 
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewOutlineProvider;
-import android.graphics.Outline;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.flexbox.FlexboxLayoutManager;
@@ -38,15 +33,48 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IngredientActivity extends AppCompatActivity {
-    private Button btn_ingredient_back; // 뒤로가기 버튼
-    private FrameLayout view_ingredient;    // 카메라 미리보기 View
-    private LinearLayout view_ingredient_not_connected; // 카메라 미연결 안내 문구
-    private Button btn_ingredient_dectect; // "재료 인식하기" 버튼
-    private RecyclerView rcv_monitoring_ingredients;    // 인식된 재료 RecyclerView
-    private IngredientAdapter ingredientAdapter; // 재료 어댑터
-    private List<IngredientItem> ingredientList;    // 재료 리스트
-    private LinearLayout btn_ingredient_suggest;  // "Recipe" 버튼
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import android.view.LayoutInflater;
+import android.widget.EditText;
+import android.widget.Toast;
+import android.view.TextureView;
+import android.view.Surface;
+import android.graphics.Outline;
+import android.view.ViewOutlineProvider;
+import android.os.Handler;
+import android.os.Looper;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.content.res.ColorStateList;
+
+import com.google.android.material.button.MaterialButton;
+import com.smn.maratang.Ingredient.IngredientAnalyzer;
+
+public class IngredientActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener {
+    private FrameLayout view_ingredient_camera;
+    private TextView btn_ingredient_detect_ingredient, btn_ingredient_edit;
+    private RecyclerView recycler_ingredient_ingredients;
+    private LinearLayout view_ingredient_camera_not_connected, btn_ingredient_suggest, ingredient_button_add_ingredient;
+
+    // Camera/preview
+    private SurfaceView cameraSurfaceView;
+    private SurfaceHolder surfaceHolder;
+    private Camera camera;
+    private boolean isPreviewRunning = false;
+    private boolean isFrozen = false;
+
+    // Recycler
+    private IngredientAdapter ingredientAdapter;
+    private final List<IngredientItem> ingredientList = new ArrayList<>();
+
+    private static final int REQ_CAMERA = 1001;
+    private TextureView cameraTextureView;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private int cameraOpenRetry = 0;
+    private static final int MAX_OPEN_RETRY = 3;
+    private boolean isListVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,231 +87,318 @@ public class IngredientActivity extends AppCompatActivity {
             return insets;
         });
 
-        // 액티비티 레이아웃 초기화
-        initViews();
-
         // 버튼 초기화
         initButtons();
 
-        // RecyclerView 및 어댑터 초기화
-        initAdapter();
+        // RecyclerView 구성
+        setupRecycler();
+        // 초기에는 숨김
+        recycler_ingredient_ingredients.setVisibility(View.GONE);
+        isListVisible = false;
 
-        // 뒤로가기 버튼 클릭 시 액티비티 종료
-        btn_ingredient_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        // 카메라 프리뷰용 TextureView 추가 및 권한 확인
+        setupCameraTexture();
+        ensureCameraPermissionAndStart();
 
         // 레시피 추천 화면으로 이동하는 버튼 클릭 이벤트
-        btn_ingredient_suggest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // SuggestActivity로 이동
-                Intent intent = new Intent(IngredientActivity.this, SuggestActivity.class);
-                startActivity(intent);
+        btn_ingredient_suggest.setOnClickListener(v -> {
+            Intent intent = new Intent(IngredientActivity.this, SuggestActivity.class);
+            // 인식된 재료 전달(Serializable)
+            if (ingredientList != null && !ingredientList.isEmpty()) {
+                intent.putExtra("recognized_ingredients", new java.util.ArrayList<>(ingredientList));
             }
+            startActivity(intent);
         });
 
-        // 첫 번째 아이템에 " + " 추가 (재료 추가용)
-        addIngredient(" + ");
+        // 재료 추가 바텀시트
+        ingredient_button_add_ingredient.setOnClickListener(v -> showAddIngredientBottomSheet());
 
-        // 카메라 연결 임시 메소드 호출
-        tempCameraConnect();
-
-        // 재료 인식 버튼 클릭 시 재료 리스트에 랜덤 재료 추가 및 레시피 추천 버튼 표시
-        btn_ingredient_dectect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // "재료 인식하기" 버튼 숨김
-                btn_ingredient_suggest.setVisibility(VISIBLE);
-
-                // 임의의 재료를 재료 리스트에 추가
-                tempIngredient();
+        // 재료 인식(프리뷰 일시정지/재개) 토글 버튼
+        btn_ingredient_detect_ingredient.setOnClickListener(v -> {
+            toggleFreezePreview();
+            // 리스트 표시 토글: 최초 클릭 시 보이도록
+            if (!isListVisible) {
+                recycler_ingredient_ingredients.setVisibility(View.VISIBLE);
+                isListVisible = true;
+            }
+            // 정지된 시점에만 분석 수행
+            if (isFrozen) {
+                captureAndAnalyzeFrame();
             }
         });
     }
 
-    /**
-     * @brief 뷰 컴포넌트 초기화 메서드
-     */
-    private void initViews() {
-        view_ingredient = findViewById(R.id.view_ingredient);
-        view_ingredient_not_connected = findViewById(R.id.view_ingredient_not_connected);
-    }
-
-    /**
-     * @brief 버튼 초기화 메서드
-     */
+    // 버튼 초기화 메서드
     private void initButtons() {
-        btn_ingredient_back = findViewById(R.id.btn_ingredient_back);
-        btn_ingredient_dectect = findViewById(R.id.btn_ingredient_dectect);
+        view_ingredient_camera = findViewById(R.id.view_ingredient_camera);
+        btn_ingredient_detect_ingredient = findViewById(R.id.btn_ingredient_detect_ingredient);
+        btn_ingredient_edit = findViewById(R.id.btn_ingredient_edit);
+        recycler_ingredient_ingredients = findViewById(R.id.recycler_ingredient_ingredients);
+        view_ingredient_camera_not_connected = findViewById(R.id.view_ingredient_camera_not_connected);
         btn_ingredient_suggest = findViewById(R.id.btn_ingredient_suggest);
+        ingredient_button_add_ingredient = findViewById(R.id.ingredient_button_add_ingredient);
     }
 
-    /**
-     * @brief RecyclerView 및 어댑터 초기화 메서드
-     */
-    private void initAdapter() {
-        // RecyclerView 초기화
-        rcv_monitoring_ingredients = findViewById(R.id.rcv_monitoring_ingredients);
-
-        // 재료 리스트와 어댑터 초기화
-        ingredientList = new ArrayList<>();
+    // Recycler 설정: LinearLayoutManager(세로) 사용 + 배경 투명
+    private void setupRecycler() {
+        recycler_ingredient_ingredients.setLayoutManager(new LinearLayoutManager(this));
         ingredientAdapter = new IngredientAdapter(ingredientList);
+        recycler_ingredient_ingredients.setAdapter(ingredientAdapter);
+        recycler_ingredient_ingredients.setBackgroundColor(Color.TRANSPARENT);
+        // 초기 더미 데이터 추가 제거: 분석 결과만 표시
+    }
 
-        // FlexboxLayoutManager 설정: 가로 방향, 래핑 허용
-        FlexboxLayoutManager flexLayoutManager = new FlexboxLayoutManager(this);
-        flexLayoutManager.setFlexDirection(FlexDirection.ROW);
-        flexLayoutManager.setFlexWrap(FlexWrap.WRAP);
-        rcv_monitoring_ingredients.setLayoutManager(flexLayoutManager);
-        rcv_monitoring_ingredients.setAdapter(ingredientAdapter);
-
-        // 행간(줄 간격) 8dp 설정
-        int rowSpacing = (int) TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
-        rcv_monitoring_ingredients.addItemDecoration(new RecyclerView.ItemDecoration() {
+    // TextureView를 사용하여 모서리 반경 적용 가능하도록 설정
+    private void setupCameraTexture() {
+        if (cameraTextureView != null) return;
+        cameraTextureView = new TextureView(this);
+        cameraTextureView.setSurfaceTextureListener(this);
+        // 고정 라운드 사각형 outline (배경 의존 X)
+        view_ingredient_camera.setClipToOutline(true);
+        view_ingredient_camera.setOutlineProvider(new ViewOutlineProvider() {
             @Override
-            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-                                       @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-                outRect.bottom = rowSpacing;
+            public void getOutline(View view, Outline outline) {
+                int w = view.getWidth();
+                int h = view.getHeight();
+                float r = dpToPx(16); // 16dp 라운드
+                if (w > 0 && h > 0) {
+                    outline.setRoundRect(0, 0, w, h, r);
+                }
             }
         });
+        view_ingredient_camera.addView(cameraTextureView, 0,
+                new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT));
     }
 
-    /**
-     * @brief 임시 카메라 연결 메서드
-     * 2초 후에 후면 카메라 미리보기를 추가하고, 연결 안내 문구를 숨김
-     */
-    private void tempCameraConnect() {
-        // 2초 후 카메라 연결 및 미리보기 설정
-        Handler handlerCamera = new Handler(Looper.getMainLooper());
-        handlerCamera.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // 카메라 연결 안내 문구 숨김
-                view_ingredient_not_connected.setVisibility(View.GONE);
+    private float dpToPx(float dp) {
+        return dp * getResources().getDisplayMetrics().density;
+    }
 
-                // 후면 카메라 미리보기 SurfaceView 추가
-                try {
-                    Camera camera = Camera.open(); // 기본 후면 카메라 오픈
-                    SurfaceView surfaceView = new SurfaceView(IngredientActivity.this);
-                    // ───── 카메라 미리보기 둥근 모서리 적용 (API 21+) ─────
-                    // 16dp 반경을 px로 변환
-                    final float radiusPx = 16f * getResources().getDisplayMetrics().density;
+    private boolean hasCameraPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+    }
 
-                    // 둥근 외곽선 제공자 설정
-                    surfaceView.setOutlineProvider(new ViewOutlineProvider() {
-                        @Override
-                        public void getOutline(View view, Outline outline) {
-                            // 뷰의 현재 크기에 맞춰 모서리를 둥글게 마스킹
-                            outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radiusPx);
-                        }
-                    });
-                    // 외곽선 기준으로 잘라내기 활성화
-                    surfaceView.setClipToOutline(true);
+    private void ensureCameraPermissionAndStart() {
+        if (hasCameraPermission()) {
+            if (cameraTextureView != null && cameraTextureView.isAvailable()) {
+                startCameraPreviewWithTexture();
+            }
+            // Texture가 아직 준비 안 됐으면 onSurfaceTextureAvailable에서 시작
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQ_CAMERA);
+        }
+    }
 
-                    // 크기 변경 시 외곽선 재계산
-                    surfaceView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                        @Override
-                        public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                                                   int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                            v.invalidateOutline();
-                        }
-                    });
-                    view_ingredient.addView(surfaceView, 0);
-                    SurfaceHolder holder = surfaceView.getHolder();
-                    holder.addCallback(new SurfaceHolder.Callback() {
-                        @Override
-                        public void surfaceCreated(SurfaceHolder holder) {
-                            try {
-                                // 카메라 미리보기 디스플레이 설정 및 시작
-                                camera.setPreviewDisplay(holder);
-                                camera.startPreview();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        @Override
-                        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                            // 미리보기 변경 시 처리 (현재 미구현)
-                        }
-
-                        @Override
-                        public void surfaceDestroyed(SurfaceHolder holder) {
-                            // 미리보기 중지 및 카메라 자원 해제
-                            camera.stopPreview();
-                            camera.release();
-                        }
-                    });
-
-                    // 재료 인식 버튼 보이기 및 최상위로 위치시킴
-                    btn_ingredient_dectect.setVisibility(VISIBLE);
-                    btn_ingredient_dectect.bringToFront();
-                } catch (Exception e) {
-                    e.printStackTrace();
+    private void startCameraPreviewWithTexture() {
+        try {
+            if (cameraTextureView == null) return;
+            if (cameraTextureView.getSurfaceTexture() == null) {
+                // SurfaceTexture 준비가 늦는 경우 약간 지연 후 재시도
+                mainHandler.postDelayed(this::startCameraPreviewWithTexture, 100);
+                return;
+            }
+            if (camera == null) {
+                int index = getIntent() != null ? getIntent().getIntExtra("camera_index", 0) : 0;
+                int count = Camera.getNumberOfCameras();
+                if (count <= 0) throw new RuntimeException("No camera available");
+                if (index < 0 || index >= count) index = 0;
+                camera = Camera.open(index);
+            }
+            camera.setDisplayOrientation(90);
+            camera.setPreviewTexture(cameraTextureView.getSurfaceTexture());
+            camera.startPreview();
+            isPreviewRunning = true;
+            isFrozen = false;
+            cameraOpenRetry = 0; // 성공 시 리셋
+            if (view_ingredient_camera_not_connected != null) {
+                view_ingredient_camera_not_connected.setVisibility(View.GONE);
+            }
+        } catch (Exception e) {
+            if (cameraOpenRetry < MAX_OPEN_RETRY) {
+                cameraOpenRetry++;
+                mainHandler.postDelayed(this::startCameraPreviewWithTexture, 200);
+            } else {
+                if (view_ingredient_camera_not_connected != null) {
+                    view_ingredient_camera_not_connected.setVisibility(View.VISIBLE);
                 }
             }
-        }, 2000L); // 2초 지연
+        }
     }
 
-    /**
-     * @brief 임시로 재료를 추가하는 메서드
-     * 0.3초 간격으로 5개의 랜덤 재료를 추가
-     */
-    private void tempIngredient() {
-        Handler handlerRecyclerView = new Handler(Looper.getMainLooper());
-        // 0.3초 간격으로 5개의 재료를 추가
-        for (int i = 0; i < 5; i++) {
-            handlerRecyclerView.postDelayed(new Runnable() {
+    private void toggleFreezePreview() {
+        if (camera == null) return;
+        try {
+            if (!isFrozen) {
+                if (isPreviewRunning) {
+                    camera.stopPreview();
+                    isPreviewRunning = false;
+                }
+                isFrozen = true;
+                btn_ingredient_detect_ingredient.setText(R.string.ingredient_edit);
+            } else {
+                camera.startPreview();
+                isPreviewRunning = true;
+                isFrozen = false;
+                btn_ingredient_detect_ingredient.setText(R.string.main_button_detect_ingredient);
+            }
+        } catch (RuntimeException e) {
+            // TextureView 기반으로 복구
+            startCameraPreviewWithTexture();
+        }
+    }
+
+    private void releaseCamera() {
+        try {
+            if (camera != null) {
+                if (isPreviewRunning) {
+                    camera.stopPreview();
+                }
+                camera.release();
+            }
+        } catch (Exception ignored) {
+        } finally {
+            camera = null;
+            isPreviewRunning = false;
+            isFrozen = false;
+            cameraOpenRetry = 0; // 초기화
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ensureCameraPermissionAndStart();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        releaseCamera();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_CAMERA) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (cameraTextureView != null && cameraTextureView.isAvailable()) {
+                    startCameraPreviewWithTexture();
+                }
+            } else {
+                if (view_ingredient_camera_not_connected != null) {
+                    view_ingredient_camera_not_connected.setVisibility(View.VISIBLE);
+                }
+                Toast.makeText(this, "카메라 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void captureAndAnalyzeFrame() {
+        try {
+            if (cameraTextureView == null || !cameraTextureView.isAvailable()) {
+                Toast.makeText(this, "카메라 프리뷰가 준비되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            int w = Math.max(64, view_ingredient_camera.getWidth());
+            int h = Math.max(64, view_ingredient_camera.getHeight());
+            Bitmap full = cameraTextureView.getBitmap(w, h);
+            if (full == null) {
+                Toast.makeText(this, "프레임 캡처 실패", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // 리스트에 '인식 중' 표시
+            ingredientList.clear();
+            ingredientList.add(new com.smn.maratang.Ingredient.IngredientItem("인식 중", "", ""));
+            ingredientAdapter.notifyDataSetChanged();
+
+            IngredientAnalyzer.analyzeWithMlkit(this, full, new IngredientAnalyzer.Callback() {
                 @Override
-                public void run() {
-                    // 랜덤 재료 추가
-                    addIngredient(randomIngredient());
+                public void onResult(@NonNull java.util.List<com.smn.maratang.Ingredient.IngredientItem> results) {
+                    runOnUiThread(() -> {
+                        ingredientList.clear();
+                        if (results != null && !results.isEmpty()) {
+                            ingredientList.addAll(results);
+                        } else {
+                            ingredientList.add(new com.smn.maratang.Ingredient.IngredientItem("인식된 재료가 없습니다.", "", ""));
+                        }
+                        ingredientAdapter.notifyDataSetChanged();
+                    });
                 }
-            }, 300L * (i + 1)); // 300ms, 600ms, 900ms, ...
+
+                @Override
+                public void onError(@NonNull Exception e) {
+                    runOnUiThread(() -> {
+                        ingredientList.clear();
+                        ingredientList.add(new com.smn.maratang.Ingredient.IngredientItem("인식된 재료가 없습니다.", "", ""));
+                        ingredientAdapter.notifyDataSetChanged();
+                    });
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(this, "분석 중 오류 발생", Toast.LENGTH_SHORT).show();
         }
     }
 
-    /**
-     * @brief 재료 리스트에 중복 없이 재료 추가하는 메서드
-     * @param ingredient 추가할 재료 이름 문자열
-     */
-    private void addIngredient(String ingredient) {
-        // 중복 검사(이미 리스트에 있으면 추가하지 않음)
-        if (ingredientList != null && ingredientAdapter != null) {
-            for (IngredientItem existing : ingredientList) {
-                if (existing.getName().equals(ingredient)) {
-                    return;
-                }
+    // 재료 추가 바텀시트 표시
+    private void showAddIngredientBottomSheet() {
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        View sheet = LayoutInflater.from(this).inflate(R.layout.bottomsheet_add_ingredient, null);
+        dialog.setContentView(sheet);
+
+        EditText etName = sheet.findViewById(R.id.et_ingredient_name);
+        EditText etCount = sheet.findViewById(R.id.et_ingredient_count);
+        EditText etUnit = sheet.findViewById(R.id.et_ingredient_unit);
+        View btnAdd = sheet.findViewById(R.id.btn_save);
+
+        // 버튼 색상 틴트를 코드에서도 강제 적용(@color/brown)
+        if (btnAdd instanceof MaterialButton) {
+            ((MaterialButton) btnAdd).setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.brown)));
+        } else {
+            btnAdd.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.brown)));
+        }
+
+        btnAdd.setOnClickListener(v -> {
+            String name = etName.getText() != null ? etName.getText().toString().trim() : "";
+            String cnt = etCount.getText() != null ? etCount.getText().toString().trim() : "";
+            String unit = etUnit.getText() != null ? etUnit.getText().toString().trim() : "";
+
+            if (name.isEmpty()) {
+                etName.setError("재료 이름을 입력하세요");
+                return;
             }
 
-            // 리스트에 항목 추가
-            ingredientList.add(new IngredientItem(ingredient));
-            // 어댑터에 삽입 알림
+            // 기존에 '인식된 재료가 없습니다.' placeholder만 있는 경우 제거
+            if (ingredientList.size() == 1 && "인식된 재료가 없습니다.".equals(ingredientList.get(0).getName())) {
+                ingredientList.clear();
+            }
+
+            ingredientList.add(new com.smn.maratang.Ingredient.IngredientItem(name, cnt, unit));
             ingredientAdapter.notifyItemInserted(ingredientList.size() - 1);
-            // 새 항목으로 스크롤 이동
-            rcv_monitoring_ingredients.scrollToPosition(ingredientList.size() - 1);
-        }
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
-    /**
-     * @brief 임의의 재료 이름을 랜덤으로 반환하는 메서드
-     * @return 랜덤으로 선택된 재료 이름 문자열 (이모지 포함)
-     */
-    private String randomIngredient() {
-        // 재료의 이름 양식은: "재료 이름" + "재료 이모지"
-        String[] ingredients = {
-            "🍅 토마토", "🧅 양파", "🥕 당근", "🥔 감자", "🥦 브로콜리",
-            "🌱 시금치", "🌶️ 피망", "🧄 마늘", "🫚 생강", "🥒 오이"
-        };
-
-        // 0부터 ingredients.length-1 사이의 랜덤 인덱스 생성
-        int randomIndex = (int) (Math.random() * ingredients.length);
-
-        // 랜덤 인덱스에 해당하는 재료 반환
-        return ingredients[randomIndex];
+    // TextureView 콜백 구현
+    @Override
+    public void onSurfaceTextureAvailable(android.graphics.SurfaceTexture surface, int width, int height) {
+        if (hasCameraPermission()) startCameraPreviewWithTexture();
     }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(android.graphics.SurfaceTexture surface, int width, int height) {
+        // 필요시 프리뷰 리스타트
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(android.graphics.SurfaceTexture surface) {
+        releaseCamera();
+        return true;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(android.graphics.SurfaceTexture surface) { }
 }

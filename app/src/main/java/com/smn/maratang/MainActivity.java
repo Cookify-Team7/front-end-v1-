@@ -3,11 +3,10 @@ package com.smn.maratang;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -17,12 +16,16 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity { ;
+import android.hardware.Camera;
+
+public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CAMERA_PERMISSION = 100;   // 카메라 권한 요청 코드
-    private LinearLayout btn_main_connect;    // "카메라 연결하기" 버튼
-    private LinearLayout btn_main_monitoring, btn_main_ingredient, btn_main_ai_chat;    //모드 선택 버튼
+    private TextView btn_main_detect_ingredient;
+    private LinearLayout main_button_saved_recipe, main_button_menu;    //모드 선택 버튼
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,87 +42,89 @@ public class MainActivity extends AppCompatActivity { ;
         initButtons();
 
         // 버튼 클릭 리스너 설정
-        // "안전 모니터링 시작" 버튼 클릭 리스너
-        btn_main_monitoring.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //MonitoringActivity로 이동
-                startActivity(new Intent(MainActivity.this, MonitoringActivity.class));
-            }
-        });
-
-        // "재료 인식" 버튼 클릭 리스너
-        btn_main_ingredient.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //IngredientActivity로 이동
-                startActivity(new Intent(MainActivity.this, IngredientActivity.class));
-            }
-        });
-
-        // "AI 챗" 버튼 클릭 리스너
-        btn_main_ai_chat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //AiChatActivity로 이동
-                startActivity(new Intent(MainActivity.this, AiChatActivity.class));
-            }
-        });
-
-        // "카메라 연결하기" 버튼 클릭 리스너
-        btn_main_connect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(
+        btn_main_detect_ingredient.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
                         MainActivity.this,
                         new String[]{Manifest.permission.CAMERA},
                         REQUEST_CAMERA_PERMISSION
-                    );
-                } else {
-                    showCameraListPopup();
-                }
+                );
+            } else {
+                showCameraListPopup();
             }
         });
+
+        main_button_saved_recipe.setOnClickListener(v ->
+                Log.d("MainActivity", "Navigation to SavedRecipeActivity")
+        );
+
+        main_button_menu.setOnClickListener(v ->
+                Log.d("MainActivity", "Navigation to MenuActivity")
+        );
     }
 
-
-    /**
-     * @breif 메인 화면의 카메라 연결 버튼, 모드 선택 버튼 초기화
-     */
+    // 버튼, 모드 선택 뷰 초기화
     private void initButtons() {
-        btn_main_connect = findViewById(R.id.btn_main_connect); // "카메라 연결하기" 버튼
-
-        btn_main_monitoring = findViewById(R.id.btn_main_monitoring); // "안전 모니터링 시작" 버튼
-        btn_main_ingredient = findViewById(R.id.btn_main_ingredient); // "재료 인식" 버튼
-        btn_main_ai_chat = findViewById(R.id.btn_main_ai_chat); // "AI 챗" 버튼
+        btn_main_detect_ingredient = findViewById(R.id.btn_main_detect_ingredient);
+        main_button_saved_recipe = findViewById(R.id.main_button_saved_recipe);
+        main_button_menu = findViewById(R.id.main_button_menu);
     }
 
-    /**
-     * @breif 카메라 목록을 팝업으로 표시하는 메소드
-     */
+    // 전면/후면 각각 첫 번째 카메라만 노출하여 중복 제거
     private void showCameraListPopup() {
-        // TODO: 카메라 목록을 팝업으로 표시하는 로직 구현
+        int count = Camera.getNumberOfCameras();
+        if (count <= 0) {
+            Toast.makeText(this, "사용 가능한 카메라가 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Integer frontId = null, backId = null;
+        for (int i = 0; i < count; i++) {
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            Camera.getCameraInfo(i, info);
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT && frontId == null) {
+                frontId = i;
+            } else if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK && backId == null) {
+                backId = i;
+            }
+        }
+        // 표시할 라벨/ID 구성
+        String[] labels;
+        int[] ids;
+        if (frontId != null && backId != null) {
+            labels = new String[]{"후면 카메라", "전면 카메라"};
+            ids = new int[]{backId, frontId};
+        } else if (backId != null) {
+            labels = new String[]{"후면 카메라"};
+            ids = new int[]{backId};
+        } else if (frontId != null) {
+            labels = new String[]{"전면 카메라"};
+            ids = new int[]{frontId};
+        } else {
+            Toast.makeText(this, "사용 가능한 카메라가 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("카메라 선택")
+                .setItems(labels, (dialog, which) -> {
+                    int cameraId = ids[which];
+                    Intent intent = new Intent(MainActivity.this, IngredientActivity.class);
+                    intent.putExtra("camera_index", cameraId);
+                    startActivity(intent);
+                })
+                .setNegativeButton("취소", null)
+                .show();
     }
 
-    /**
-     * @breif 카메라 권한 요청 결과를 처리하는 메소드
-     * @param requestCode 요청 코드
-     * @param permissions 요청한 권한 목록
-     * @param grantResults 권한 요청 결과
-     */
+    // 카메라 권한 요청 결과 처리
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // 카메라 권한 요청 결과 처리
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
-            // 권한이 허용되었는지 확인
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 showCameraListPopup();
-            }
-            // 권한이 거부된 경우
-            else {
+            } else {
                 Toast.makeText(this, "카메라 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
             }
         }

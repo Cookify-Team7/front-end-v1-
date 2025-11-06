@@ -129,10 +129,6 @@ public class MonitoringActivity extends AppCompatActivity {
 
         btn_monitoring_back.setOnClickListener(v -> finish());
 
-        // 리스트/어댑터
-        initAdapter();
-        tempElementAdd();
-
         // ── 네트워크 클라이언트/핸들러 ────────────────────────────────────────────
         mainHandler   = new Handler(Looper.getMainLooper());
         workerHandler = new Handler(Looper.getMainLooper()); // 필요 시 HandlerThread로 분리 가능
@@ -335,53 +331,5 @@ public class MonitoringActivity extends AppCompatActivity {
         mainHandler.post(() -> {
             view_monitoring_not_connected.setVisibility(View.VISIBLE);
         });
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // RecyclerView (기존 로직 유지)
-    // ─────────────────────────────────────────────────────────────
-    private void initAdapter() {
-        rcv_monitoring_danger = findViewById(R.id.rcv_monitoring_danger);
-        dangerList = new ArrayList<>();
-        dangerAdapter = new DangerAdapter(dangerList);
-        rcv_monitoring_danger.setLayoutManager(new LinearLayoutManager(this));
-        rcv_monitoring_danger.setAdapter(dangerAdapter);
-    }
-
-    private void tempElementAdd() {
-        Handler handlerRecyclerView = new Handler(Looper.getMainLooper());
-        for (int i = 0; i < 3; i++) {
-            final int delayIndex = i;
-            handlerRecyclerView.postDelayed(() -> addDanger(randomElement(), randomRisk()),
-                    3000L * (delayIndex + 1));
-        }
-    }
-
-    private void addDanger(String dangerTitle, String dangerLevel) {
-        String title     = dangerTitle;
-        String timestamp = getRelativeTime(System.currentTimeMillis());
-        String riskLevel = "위험 수준 | " + dangerLevel;
-
-        DangerItem item = new DangerItem(title, timestamp, riskLevel);
-        dangerList.add(item);
-        dangerAdapter.notifyItemInserted(dangerList.size() - 1);
-        rcv_monitoring_danger.scrollToPosition(dangerList.size() - 1);
-    }
-
-    private String getRelativeTime(long eventMillis) {
-        long diff = System.currentTimeMillis() - eventMillis;
-        long minutes = diff / 60000;
-        if (minutes < 1) return "방금 전";
-        return minutes + "분 전";
-    }
-
-    private String randomRisk() {
-        String[] levels = {"Low", "Medium", "High"};
-        return levels[new java.util.Random().nextInt(levels.length)];
-    }
-
-    private String randomElement() {
-        String[] elements = {"연기 감지", "가스 누출", "온도 상승", "이상 소음"};
-        return elements[new java.util.Random().nextInt(elements.length)];
     }
 }

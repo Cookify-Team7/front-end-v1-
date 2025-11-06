@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 사진 느낌: 라벨 위/입력칸 아래, 둥근 테두리, 우측 저장 버튼 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="16dp">
+
+    <!-- 상단: 재료 이름 라벨 -->
+    <TextView
+        android:id="@+id/tv_label_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ingredient_bottomsheet_name"
+        android:textColor="@color/brown"
+        android:fontFamily="@font/semibold"
+        android:textSize="14sp"
+        android:layout_marginBottom="6dp" />
+
+    <!-- 재료 이름 입력칸 -->
+    <EditText
+        android:id="@+id/et_ingredient_name"
+        android:layout_width="202dp"
+        android:layout_height="34dp"
+        android:background="@drawable/input_ingredient"
+        android:hint="@string/ingredient_bottomsheet_name_hint"
+        android:textColorHint="@color/brown"
+        android:fontFamily="@font/regular"
+        android:textSize="14sp"
+        android:paddingHorizontal="14dp"
+        android:inputType="textPersonName" />
+
+    <!-- 간격 -->
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="14dp" />
+
+    <!-- 두 칸을 좌우로: 각 칼럼에 라벨 + 입력칸을 세로로 배치 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- 개수 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_label_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ingredient_bottomsheet_count"
+                android:textColor="@color/brown"
+                android:fontFamily="@font/semibold"
+                android:textSize="14sp"
+                android:layout_marginBottom="6dp" />
+
+            <EditText
+                android:id="@+id/et_ingredient_count"
+                android:layout_width="124dp"
+                android:layout_height="34dp"
+                android:background="@drawable/input_ingredient"
+                android:hint="@string/ingredient_bottomsheet_count_hint"
+                android:textColorHint="@color/brown"
+                android:fontFamily="@font/regular"
+                android:textSize="14sp"
+                android:paddingHorizontal="14dp"
+                android:inputType="textPersonName" />
+        </LinearLayout>
+
+        <!-- 좌우 간격 -->
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="1dp" />
+
+        <!-- Unit -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_label_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ingredient_bottomsheet_unit"
+                android:fontFamily="@font/semibold"
+                android:textColor="@color/brown"
+                android:textSize="14sp"
+                android:layout_marginBottom="6dp" />
+
+            <EditText
+                android:id="@+id/et_ingredient_unit"
+                android:layout_width="124dp"
+                android:layout_height="34dp"
+                android:background="@drawable/input_ingredient"
+                android:hint="@string/ingredient_bottomsheet_unit_hint"
+                android:textColorHint="@color/brown"
+                android:fontFamily="@font/regular"
+                android:textSize="14sp"
+                android:paddingHorizontal="14dp"
+                android:inputType="textPersonName" />
+        </LinearLayout>
+
+        <!-- 우측 저장 버튼 -->
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="1dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save"
+            android:layout_width="87dp"
+            android:layout_height="34dp"
+            android:padding="0dp"
+            android:layout_gravity="bottom"
+            android:text="@string/ingredient_bottomsheet_save"
+            android:textColor="@android:color/white"
+            app:backgroundTint="@color/brown"
+            app:cornerRadius="4dp" />
+    </LinearLayout>
+</LinearLayout>

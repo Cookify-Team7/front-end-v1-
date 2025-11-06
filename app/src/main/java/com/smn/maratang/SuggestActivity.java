@@ -1,26 +1,36 @@
 package com.smn.maratang;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.smn.maratang.Ingredient.IngredientAdapter;
+import com.smn.maratang.Ingredient.IngredientItem;
+import com.smn.maratang.recipes.RecipeAdapter;
+import com.smn.maratang.recipes.RecipeItem;
+import com.smn.maratang.recipes.RecipeSuggester;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class SuggestActivity extends AppCompatActivity {
-    private Button btn_suggest_back;                                                // 뒤로가기 버튼
-    private Button btn_suggest_option1, btn_suggest_option2, btn_suggest_option3;   // 추천 옵션 버튼
-    private String suggestOption1, suggestOption2, suggestOption3;                  // 추천 문구
-    private EditText edit_suggest_chatbot;                                          // 챗봇 입력창
+public class SuggestActivity extends AppCompatActivity {     // 챗봇 입력창
+
+    private RecyclerView recycler_suggest_ingredients;
+    private IngredientAdapter ingredientAdapter;
+    private final List<IngredientItem> ingredientList = new ArrayList<>();
+
+    private RecyclerView recycler_suggest_recipes;
+    private RecipeAdapter recipeAdapter;
+    private final List<RecipeItem> recipeList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,63 +43,60 @@ public class SuggestActivity extends AppCompatActivity {
             return insets;
         });
 
-        // 버튼 초기화
-        initButtons();
+        recycler_suggest_ingredients = findViewById(R.id.recycler_suggest_ingredients);
+        recycler_suggest_recipes = findViewById(R.id.recycler_suggest_recipes);
+        setupFirstRecycler();
+        setupSecondRecycler();
 
-        // 챗봇 입력창 초기화
-        edit_suggest_chatbot = findViewById(R.id.edit_suggest_chatbot);
+        // 인식 결과 수신 및 반영
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("recognized_ingredients")) {
+            java.util.ArrayList<IngredientItem> received = (java.util.ArrayList<IngredientItem>) intent.getSerializableExtra("recognized_ingredients");
+            if (received != null && !received.isEmpty()) {
+                ingredientList.clear();
+                ingredientList.addAll(received);
+                ingredientAdapter.notifyDataSetChanged();
+            }
+        }
 
-        // 뒤로가기 버튼 클릭 시
-        btn_suggest_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 현재 액티비티 종료
-                finish();
+        if (ingredientList.isEmpty()) {
+            ingredientList.add(new IngredientItem("인식된 재료가 없습니다.", "", ""));
+            ingredientAdapter.notifyDataSetChanged();
+        } else {
+            // 재료 기반 레시피 조회
+            requestRecipes();
+        }
+    }
+
+    private void setupFirstRecycler() {
+        recycler_suggest_ingredients.setLayoutManager(new LinearLayoutManager(this));
+        ingredientAdapter = new IngredientAdapter(ingredientList);
+        recycler_suggest_ingredients.setAdapter(ingredientAdapter);
+    }
+
+    private void setupSecondRecycler() {
+        recycler_suggest_recipes.setLayoutManager(new GridLayoutManager(this, 2));
+        recipeAdapter = new RecipeAdapter(recipeList);
+        recycler_suggest_recipes.setAdapter(recipeAdapter);
+    }
+
+    private void requestRecipes() {
+        // 이름만 추출
+        List<String> names = ingredientList.stream().map(IngredientItem::getName).collect(Collectors.toList());
+        RecipeSuggester.suggest(names, new RecipeSuggester.Callback() {
+            @Override public void onResult(List<RecipeItem> items) {
+                runOnUiThread(() -> {
+                    recipeList.clear();
+                    recipeList.addAll(items);
+                    recipeAdapter.notifyDataSetChanged();
+                });
+            }
+            @Override public void onError(Exception e) {
+                runOnUiThread(() -> {
+                    recipeList.clear();
+                    recipeAdapter.notifyDataSetChanged();
+                });
             }
         });
-    }
-
-
-    /** * @breif 메서드는 추천 옵션 버튼을 초기화
-     * 각 버튼에 추천 문구를 설정하고, 중복 없이 세 가지 옵션을 선택하도록 리스트를 섞음
-     */
-    private void initButtons() {
-        // 버튼 초기화
-        btn_suggest_back = findViewById(R.id.btn_suggest_back);
-        btn_suggest_option1 = findViewById(R.id.btn_suggest_option1);
-        btn_suggest_option2 = findViewById(R.id.btn_suggest_option2);
-        btn_suggest_option3 = findViewById(R.id.btn_suggest_option3);
-
-        // 중복 없이 세 가지 옵션을 선택하도록 리스트를 섞음
-        List<String> list = getSuggestionsList();
-        Collections.shuffle(list);
-        suggestOption1 = list.get(0);
-        suggestOption2 = list.get(1);
-        suggestOption3 = list.get(2);
-
-        // 각 버튼에 추천 문구 설정
-        btn_suggest_option1.setText(suggestOption1);
-        btn_suggest_option2.setText(suggestOption2);
-        btn_suggest_option3.setText(suggestOption3);
-    }
-
-    /**
-     * @breif 메서드는 추천 문구를 담은 리스트를 반환
-     *
-     * @return 추천 문구 리스트
-     */
-    private List<String> getSuggestionsList() {
-        return new ArrayList<>(Arrays.asList(
-                "파스타 면 3인분 몇분 정도\n삶아야 해?",
-                "10분안에 만들\n수 있는 간식 추천해줘",
-                "오늘 저녁으로 간단하게 \n 만들 수 있는 요리 추천해줘",
-                "달달한 디저트 만드는\n법을 알려줘",
-                "다이어트용 샐러드\n레시피 알려줘",
-                "비건 요리 추천해줘",
-                "매운 음식 추천해줘",
-                "서구권 음식 레시피 알려줘",
-                "한국 전통 음식\n레시피 알려줘",
-                "이탈리안 요리 추천해줘"
-        ));
     }
 }
