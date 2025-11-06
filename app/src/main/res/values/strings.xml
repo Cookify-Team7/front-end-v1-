@@ -62,4 +62,6 @@
 
     <string name="ingredient_edit_start">편집 시작</string>
     <string name="ingredient_edit_done">편집 완료</string>
+
+    <string name="suggest_loading_recipes">레시피 찾는 중…</string>
 </resources>

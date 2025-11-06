@@ -2,6 +2,7 @@ package com.smn.maratang;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
@@ -33,6 +34,9 @@ public class SuggestActivity extends AppCompatActivity {     // 챗봇 입력창
     private RecipeAdapter recipeAdapter;
     private final List<RecipeItem> recipeList = new ArrayList<>();
 
+    // 기존 ProgressBar에서 컨테이너 뷰로 변경
+    private View progressRecipesContainer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +50,7 @@ public class SuggestActivity extends AppCompatActivity {     // 챗봇 입력창
 
         recycler_suggest_ingredients = findViewById(R.id.recycler_suggest_ingredients);
         recycler_suggest_recipes = findViewById(R.id.recycler_suggest_recipes);
+        progressRecipesContainer = findViewById(R.id.progress_recipes_loading_container);
         setupFirstRecycler();
         setupSecondRecycler();
 
@@ -63,6 +68,7 @@ public class SuggestActivity extends AppCompatActivity {     // 챗봇 입력창
         if (ingredientList.isEmpty()) {
             ingredientList.add(new IngredientItem("인식된 재료가 없습니다.", "", ""));
             ingredientAdapter.notifyDataSetChanged();
+            if (progressRecipesContainer != null) progressRecipesContainer.setVisibility(View.GONE);
         } else {
             // 재료 기반 레시피 조회
             requestRecipes();
@@ -88,11 +94,15 @@ public class SuggestActivity extends AppCompatActivity {     // 챗봇 입력창
     }
 
     private void requestRecipes() {
+        // 로딩 시작: 컨테이너 표시
+        if (progressRecipesContainer != null) progressRecipesContainer.setVisibility(View.VISIBLE);
+
         // 이름만 추출
         List<String> names = ingredientList.stream().map(IngredientItem::getName).collect(Collectors.toList());
         RecipeSuggester.suggest(names, new RecipeSuggester.Callback() {
             @Override public void onResult(List<RecipeItem> items) {
                 runOnUiThread(() -> {
+                    if (progressRecipesContainer != null) progressRecipesContainer.setVisibility(View.GONE);
                     recipeList.clear();
                     recipeList.addAll(items);
                     recipeAdapter.notifyDataSetChanged();
@@ -100,6 +110,7 @@ public class SuggestActivity extends AppCompatActivity {     // 챗봇 입력창
             }
             @Override public void onError(Exception e) {
                 runOnUiThread(() -> {
+                    if (progressRecipesContainer != null) progressRecipesContainer.setVisibility(View.GONE);
                     recipeList.clear();
                     recipeAdapter.notifyDataSetChanged();
                 });
