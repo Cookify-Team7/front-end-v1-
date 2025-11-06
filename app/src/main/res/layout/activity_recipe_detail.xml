@@ -1,43 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Recipe detail screen rebuilt to match the provided mock:
+     1) Large page title
+     2) Hero image with bottom overlay (title + meta row) and bookmark button
+     3) "5 Ingredients" header + horizontal ingredients list
+     4) "Steps" header + steps list
+     5) Start button at bottom
+-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:fillViewport="true">
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <FrameLayout android:layout_width="match_parent" android:layout_height="240dp">
-            <ImageView android:id="@+id/iv_detail_photo"
-                android:layout_width="match_parent" android:layout_height="match_parent"
-                android:scaleType="centerCrop" android:background="#DDD"
-                android:contentDescription="@string/content_desc_recipe_image"/>
-            <TextView android:id="@+id/tv_detail_title"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_gravity="bottom|start" android:layout_margin="12dp"
-                android:padding="8dp" android:background="#80000000" android:textColor="#FFF"
-                android:textSize="18sp" android:text="@string/suggest_title"/>
-            <TextView android:id="@+id/tv_detail_meta"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_gravity="bottom|start" android:layout_marginStart="12dp" android:layout_marginBottom="48dp"
-                android:padding="6dp" android:background="#66000000" android:textColor="#FFF"
-                android:textSize="12sp" android:text="@string/label_recipe_steps"/>
-            <ImageButton android:id="@+id/btn_bookmark"
-                android:layout_width="36dp" android:layout_height="36dp"
-                android:layout_gravity="bottom|end" android:layout_margin="12dp"
+        <!-- Page title -->
+        <TextView
+            android:id="@+id/tv_page_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/suggest_title"
+            android:textStyle="bold"
+            android:textSize="22sp"
+            android:textColor="@color/brown"
+            android:paddingBottom="12dp" />
+
+        <!-- Hero image with overlays -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="240dp">
+
+            <!-- Recipe photo -->
+            <ImageView
+                android:id="@+id/iv_detail_photo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="#DDDDDD"
+                android:contentDescription="@string/content_desc_recipe_image" />
+
+            <!-- Bottom overlay container: title + meta row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_margin="12dp"
+                android:orientation="vertical"
+                android:background="#66000000"
+                android:padding="8dp">
+
+                <!-- Overlay title on image -->
+                <TextView
+                    android:id="@+id/tv_detail_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/suggest_title"
+                    android:textSize="18sp"
+                    android:textColor="#FFFFFFFF" />
+
+                <!-- Meta info row: keep existing id tv_detail_meta for the first chip -->
+                <LinearLayout
+                    android:id="@+id/meta_row"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:id="@+id/tv_detail_meta"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="6 Steps"
+                        android:textSize="12sp"
+                        android:textColor="#FFFFFFFF"
+                        android:padding="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_meal_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="점심/저녁"
+                        android:textSize="12sp"
+                        android:textColor="#FFFFFFFF"
+                        android:padding="4dp"
+                        android:layout_marginStart="6dp" />
+
+                    <TextView
+                        android:id="@+id/tv_cook_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="20 mins"
+                        android:textSize="12sp"
+                        android:textColor="#FFFFFFFF"
+                        android:padding="4dp"
+                        android:layout_marginStart="6dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Bookmark button at bottom-right -->
+            <ImageButton
+                android:id="@+id/btn_bookmark"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="12dp"
                 android:background="@android:color/transparent"
                 android:src="@android:drawable/btn_star_big_off"
-                android:contentDescription="@string/content_desc_bookmark"/>
+                android:contentDescription="@string/content_desc_bookmark" />
         </FrameLayout>
 
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="@string/label_need_ingredients" android:textSize="16sp" android:padding="12dp"/>
+        <!-- Ingredients section header: "5 Ingredients" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/tv_ingredient_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5"
+                android:textStyle="bold"
+                android:textSize="22sp"
+                android:textColor="@color/brown" />
+
+            <TextView
+                android:id="@+id/tv_ingredients_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ingredients"
+                android:textStyle="bold"
+                android:textSize="22sp"
+                android:textColor="@color/brown"
+                android:layout_marginStart="6dp" />
+        </LinearLayout>
+
+        <!-- Horizontal ingredients list -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_detail_ingredients"
-            android:layout_width="match_parent" android:layout_height="72dp"/>
+            android:layout_width="match_parent"
+            android:layout_height="84dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp" />
 
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="@string/label_recipe_steps" android:textSize="16sp" android:padding="12dp"/>
+        <!-- Steps header -->
+        <TextView
+            android:id="@+id/tv_steps_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Steps"
+            android:textStyle="bold"
+            android:textSize="22sp"
+            android:textColor="@color/brown"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp" />
+
+        <!-- Steps list -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_detail_steps"
-            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Start Cooking button -->
+        <Button
+            android:id="@+id/btn_start_cooking"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="요리 시작!"
+            android:textAllCaps="false"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp" />
+
     </LinearLayout>
 </ScrollView>

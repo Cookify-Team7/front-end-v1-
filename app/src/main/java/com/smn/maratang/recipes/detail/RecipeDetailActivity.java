@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.smn.maratang.R;
 import com.smn.maratang.recipes.RecipeDetailFetcher;
 import com.smn.maratang.recipes.RecipeItem;
@@ -39,6 +41,19 @@ public class RecipeDetailActivity extends AppCompatActivity {
         if (item != null) {
             tvTitle.setText(item.title);
             tvMeta.setText(item.stepsCount + "단계 • " + item.time);
+            if (item.imageUrl != null && !item.imageUrl.trim().isEmpty()) {
+                Glide.with(iv.getContext())
+                        .load(item.imageUrl)
+                        .placeholder(android.R.color.darker_gray)
+                        .error(android.R.color.darker_gray)
+                        .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                        .centerCrop()
+                        .into(iv);
+            } else {
+                iv.setImageResource(android.R.color.darker_gray);
+            }
+        } else {
+            iv.setImageResource(android.R.color.darker_gray);
         }
 
         tvTitle.setLayerType(View.LAYER_TYPE_SOFTWARE, null);

@@ -2,10 +2,10 @@
 <!-- 카드형 레시피 아이템: LinearLayout 전용 버전 (그림자/카드 제거) -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_margin="12dp">
+    android:layout_marginTop="8dp">
 
     <!-- 상단 대표 이미지: 가로폭에 맞추어 높이를 자동 조정 -->
     <ImageView
@@ -19,7 +19,7 @@
     <!-- 텍스트 영역 -->
     <LinearLayout
         android:id="@+id/ll_content"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
