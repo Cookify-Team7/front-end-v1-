@@ -64,4 +64,5 @@
     <string name="ingredient_edit_done">편집 완료</string>
 
     <string name="suggest_loading_recipes">레시피 찾는 중…</string>
+    <string name="cooking_step_progress">%1$d단계 / %2$d단계</string>
 </resources>

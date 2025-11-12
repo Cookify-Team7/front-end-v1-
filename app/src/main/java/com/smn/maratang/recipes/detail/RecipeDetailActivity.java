@@ -1,5 +1,6 @@
 package com.smn.maratang.recipes.detail;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.smn.maratang.R;
+import com.smn.maratang.recipes.RecipeCookingActivity;
 import com.smn.maratang.recipes.RecipeDetailFetcher;
 import com.smn.maratang.recipes.RecipeItem;
 
@@ -42,6 +45,9 @@ public class RecipeDetailActivity extends AppCompatActivity {
         TextView tvPageTitle = findViewById(R.id.et_recipe_title);
         Button btnBack = findViewById(R.id.btn_recipe_back);
         ImageButton btnBookmark = findViewById(R.id.btn_bookmark);
+        LinearLayout btn_recipe_start = findViewById(R.id.btn_recipe_start);
+
+
 
         if (item != null) {
             if (tvPageTitle != null) tvPageTitle.setText(item.title);
@@ -103,6 +109,12 @@ public class RecipeDetailActivity extends AppCompatActivity {
                 @Override public void onError(Exception e) { /* 무시하고 비워둠 */ }
             });
         }
+
+        btn_recipe_start.setOnClickListener(v -> {
+            Intent intent = new Intent(RecipeDetailActivity.this, RecipeCookingActivity.class);
+            intent.putExtra("recipe", item);
+            startActivity(intent);
+        });
     }
 
     private String safeUrl(String title, String url) {

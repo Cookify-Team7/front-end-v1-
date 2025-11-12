@@ -34,7 +34,7 @@ public class SuggestActivity extends AppCompatActivity {     // 챗봇 입력창
     private RecipeAdapter recipeAdapter;
     private final List<RecipeItem> recipeList = new ArrayList<>();
 
-    // 기존 ProgressBar에서 컨테이너 뷰로 변경
+    // 기존 ProgressBar에서 컨테이너 뷰로 변경힘
     private View progressRecipesContainer;
 
     @Override

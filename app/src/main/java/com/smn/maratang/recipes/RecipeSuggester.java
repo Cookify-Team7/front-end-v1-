@@ -13,6 +13,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -38,15 +39,20 @@ public class RecipeSuggester {
             .build();
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
+    private static final String TAG = "RecipeSuggester";
+
     public static void suggest(List<String> ingredients, Callback cb) {
         EXEC.execute(() -> {
+            long tStart = System.currentTimeMillis();
+            String correlationId = UUID.randomUUID().toString();
+            Log.d(TAG, logPrefix(correlationId) + "suggest() start ingredients=" + ingredients + " size=" + ingredients.size());
             try {
                 String apiKey = BuildConfig.GPT_KEY;
                 if (apiKey == null || apiKey.isEmpty()) throw new IllegalStateException("GPT_KEY 미설정");
                 String url = "https://api.openai.com/v1/chat/completions";
 
                 String sys = "당신은 요리 추천 도우미입니다. 입력 재료만 이용 가능한 한국 요리를 추천하고, 각 항목에 제목, 대표 이미지 URL(https 스키마의 공개 접근 가능한 실제 이미지), 단계 수, 소요 시간을 제공합니다. 허위/로컬/데이터URL 금지.";
-                String user = "재료:" + Arrays.toString(ingredients.toArray()) + "\nJSON 객체만 반환: {\"recipes\":[{\"title\":,\"imageUrl\":,\"stepsCount\":,\"time\":,\"ingredients\":[...]},...]} 추가 텍스트 금지.";
+                String user = "재료:" + Arrays.toString(ingredients.toArray()) + "\nJSON 객체만 반환: {\\\"recipes\\\":[{\\\"title\\\":,\\\"imageUrl\\\":,\\\"stepsCount\\\":,\\\"time\\\":,\\\"ingredients\\\":[...]},...]} 추가 텍스트 금지.";
 
                 JsonObject root = new JsonObject();
                 root.addProperty("model", "gpt-4o");
@@ -56,32 +62,63 @@ public class RecipeSuggester {
                 JsonObject u = new JsonObject(); u.addProperty("role","user"); u.addProperty("content", user); messages.add(u);
                 root.add("messages", messages);
 
+                String requestJson = new Gson().toJson(root);
+                Log.d(TAG, logPrefix(correlationId) + "Request JSON length=" + requestJson.length());
+                if (BuildConfig.DEBUG) {
+                    Log.v(TAG, logPrefix(correlationId) + "Request JSON snippet=" + safeSnippet(requestJson));
+                }
+
                 Request req = new Request.Builder().url(url)
                         .addHeader("Authorization","Bearer " + apiKey)
                         .addHeader("Content-Type","application/json")
-                        .post(RequestBody.create(new Gson().toJson(root), JSON)).build();
+                        .post(RequestBody.create(requestJson, JSON)).build();
+
                 try (Response res = HTTP.newCall(req).execute()) {
+                    long tNet = System.currentTimeMillis();
                     String body = res.body()!=null? res.body().string():"";
-                    if (!res.isSuccessful()) throw new RuntimeException("OpenAI 실패:"+res.code()+" "+body);
-                    List<RecipeItem> out = parse(body);
+                    Log.d(TAG, logPrefix(correlationId) + "HTTP status=" + res.code() + " took=" + (tNet - tStart) + "ms bodyLength=" + body.length());
+                    if (BuildConfig.DEBUG) {
+                        Log.v(TAG, logPrefix(correlationId) + "Response body snippet=" + safeSnippet(body));
+                    }
+                    if (!res.isSuccessful()) {
+                        Log.e(TAG, logPrefix(correlationId) + "OpenAI 실패 code=" + res.code() + " rawBody=" + safeSnippet(body));
+                        throw new RuntimeException("OpenAI 실패:"+res.code());
+                    }
+                    long tParseStart = System.currentTimeMillis();
+                    List<RecipeItem> out = parse(body, correlationId);
+                    long tParseEnd = System.currentTimeMillis();
+                    Log.d(TAG, logPrefix(correlationId) + "Parsed items=" + out.size() + " parseTime=" + (tParseEnd - tParseStart) + "ms total=" + (tParseEnd - tStart) + "ms");
                     cb.onResult(out);
                 }
-            } catch (Exception e) { Log.e("RecipeSuggester","error", e); cb.onError(e); }
+            } catch (Exception e) {
+                Log.e(TAG, logPrefix(correlationId) + "error msg=" + e.getMessage(), e);
+                cb.onError(e);
+            }
         });
     }
 
-    private static List<RecipeItem> parse(String resp) {
+    // 기존 parse를 확장하여 단계별 로깅
+    private static List<RecipeItem> parse(String resp, String correlationId) {
         List<RecipeItem> out = new ArrayList<>();
         try {
             JsonParser parser = new JsonParser();
             JsonObject root = parser.parse(resp).getAsJsonObject();
             JsonObject msg = root.getAsJsonArray("choices").get(0).getAsJsonObject().getAsJsonObject("message");
             String content = msg.get("content").getAsString();
+            Log.d(TAG, logPrefix(correlationId) + "content length=" + (content!=null?content.length():0));
             JsonObject obj = parser.parse(content).getAsJsonObject();
             JsonArray arr = obj.getAsJsonArray("recipes");
-            if (arr == null) return out;
+            if (arr == null) {
+                Log.w(TAG, logPrefix(correlationId) + "recipes 배열 없음");
+                return out;
+            }
+            int idx = 0;
             for (JsonElement el : arr) {
-                if (!el.isJsonObject()) continue;
+                if (!el.isJsonObject()) {
+                    Log.w(TAG, logPrefix(correlationId) + "element " + idx + " not object" );
+                    idx++;
+                    continue;
+                }
                 JsonObject o = el.getAsJsonObject();
                 String title = getString(o, "title");
                 String image = getString(o, "imageUrl");
@@ -94,10 +131,24 @@ public class RecipeSuggester {
                 }
                 String finalImage = safeImageUrl(title, image);
                 out.add(new RecipeItem(title!=null?title:"요리", finalImage, steps, time!=null?time:"", ings));
+                Log.d(TAG, logPrefix(correlationId) + "Parsed recipe idx=" + idx + " title=" + title + " stepsCount=" + steps + " ingredients=" + ings.size());
+                idx++;
             }
-        } catch (Exception ignore) {}
+        } catch (Exception e) {
+            Log.e(TAG, logPrefix(correlationId) + "parse 오류: " + e.getMessage(), e);
+        }
         return out;
     }
+
+    private static String safeSnippet(String s) {
+        if (s == null) return "null";
+        int max = 500; // 로그 과다 방지
+        String cut = s.length() > max ? s.substring(0, max) + "..." : s;
+        // 개행 치환으로 단일 라인 유지
+        return cut.replace('\n',' ');
+    }
+
+    private static String logPrefix(String correlationId) { return "[req=" + correlationId + "] "; }
 
     private static String getString(JsonObject o, String key) {
         try { return o.has(key) && !o.get(key).isJsonNull() ? o.get(key).getAsString() : null; }

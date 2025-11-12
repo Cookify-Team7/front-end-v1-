@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".recipes.RecipeCookingActivity">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_suggest_back"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="33dp"
+            android:layout_height="20dp"
+            android:backgroundTint="@android:color/transparent"
+            app:icon="@drawable/ic_chevron_left"
+            app:iconTint="@color/brown" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bold"
+            android:textSize="20sp"
+            android:textColor="@color/brown"
+            android:text="@string/suggest_title" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/view_monitoring_ai"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="-120dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/frg_preview_camera">
+
+        <LinearLayout
+            android:id="@+id/view_monitoring_not_connected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <ImageView
+                android:layout_width="43dp"
+                android:layout_height="33dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/icon_camera" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/medium"
+                android:text="@string/cammera_not_connected"
+                android:textColor="@color/semiprimary_white"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="60dp"
+        android:visibility="gone"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/progressStep"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1단계 / 4단계"
+        android:visibility="gone"
+        android:fontFamily="@font/semibold"
+        android:layout_gravity="center |top"
+        android:layout_marginTop="75dp" />
+
+
+    <Button
+        android:id="@+id/btn_start"
+        android:background="@drawable/btn_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="요리 시작하기"
+        android:textColor="@color/white"
+        android:fontFamily="@font/bold"
+        android:textSize="16sp"
+        android:visibility="visible"
+        android:paddingStart="24dp"
+        android:layout_gravity="center |bottom"
+        android:layout_marginBottom="50dp"
+        android:paddingEnd="24dp"/>
+
+    <LinearLayout
+        android:id="@+id/unstart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="180dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/unstart_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#7B5E4B"
+            android:textSize="20sp"
+            android:text="하와이안 피자"
+            android:fontFamily="@font/bold" />
+
+        <TextView
+            android:id="@+id/unstart_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="요리를 시작할 준비가 되셨나요?"
+            android:textColor="#BAA495"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/semibold"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <!-- 단계 이동 버튼: 시작 후 표시 -->
+    <LinearLayout
+        android:id="@+id/step_nav_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="50dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btn_prev_step"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="이전"
+            android:fontFamily="@font/semibold"
+            android:enabled="false"
+            android:layout_marginEnd="16dp"/>
+
+        <Button
+            android:id="@+id/btn_next_step"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="다음"
+            android:fontFamily="@font/semibold"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:gravity="bottom">
+
+        <LinearLayout
+            android:id="@+id/prev_step"
+            android:layout_width="180dp"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:elevation="8dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/btn_rectangle_white">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/bold"
+                android:textSize="14sp"
+                android:textColor="@color/primary_red"
+                android:text="이전" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <LinearLayout
+            android:id="@+id/next_step"
+            android:layout_width="180dp"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="20dp"
+            android:elevation="8dp"
+            android:background="@drawable/btn_rectangle_red">>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/bold"
+                android:textSize="14sp"
+                android:textColor="@color/white"
+                android:text="다음" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/step"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_step"
+        android:text="Step. 1"
+        android:visibility="gone"
+        android:textColor="@color/white"
+        android:fontFamily="@font/bold"
+        android:textSize="16dp"
+        android:layout_marginTop="480dp"
+        android:layout_marginStart="20dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
+
+    <TextView
+        android:id="@+id/setp_dtail"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="550dp"
+        android:text="details details details"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:textColor="#967865"
+        android:textSize="16dp"
+        android:fontFamily="@font/semibold" />
+</FrameLayout>
